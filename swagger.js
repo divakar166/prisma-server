@@ -10,7 +10,7 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
+        url: 'http://ec2-18-225-56-36.us-east-2.compute.amazonaws.com/',
       },
     ],
   },
