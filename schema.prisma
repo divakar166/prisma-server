@@ -1,0 +1,465 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+model Comment {
+  id                      Int                       @id @default(autoincrement())
+  createdAt               DateTime                  @default(now())
+  text                    String?
+  userId                  Int?
+  sourceId                Int?
+  ocean_deviation         String?
+  sentiment_trend         String?
+  BigModelOutput          BigModelOutput[]
+  source                  Source?                   @relation(fields: [sourceId], references: [id])
+  user                    LinkedInUser?             @relation(fields: [userId], references: [id])
+  EntityClassification    EntityClassification[]
+  Insight                 Insight[]
+  MiniModelSummarisation  MiniModelSummarisation[]
+  OceanClassification     OceanClassification[]
+  PersonalInfo            PersonalInfo[]
+  SentimentClassification SentimentClassification[]
+  StyleClassification     StyleClassification[]
+}
+
+model Reports {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime?
+  userId    String?
+  reportId  String?
+}
+
+model Post {
+  id                      Int                       @id @default(autoincrement())
+  createdAt               DateTime                  @default(now())
+  text                    String?
+  userId                  Int?
+  comments                Int?
+  postDate                DateTime?
+  isRepost                Boolean?
+  reposts                 Int?
+  likes                   Int?
+  sourceId                Int?
+  analysed                Boolean                   @default(false)
+  link                    String?
+  BigModelOutput          BigModelOutput[]
+  EntityClassification    EntityClassification[]
+  Insight                 Insight[]
+  MiniModelSummarisation  MiniModelSummarisation[]
+  OceanClassification     OceanClassification[]
+  PersonalInfo            PersonalInfo[]
+  source                  Source?                   @relation(fields: [sourceId], references: [id])
+  user                    LinkedInUser?             @relation(fields: [userId], references: [id])
+  SentimentClassification SentimentClassification[]
+  StyleClassification     StyleClassification[]
+}
+
+model Education {
+  id        Int           @id @default(autoincrement())
+  createdAt DateTime      @default(now())
+  school    String?
+  degree    String?
+  field     String?
+  start     DateTime?
+  end       DateTime?
+  userId    Int?
+  user      LinkedInUser? @relation(fields: [userId], references: [id])
+}
+
+model Experience {
+  id        Int           @id @default(autoincrement())
+  createdAt DateTime      @default(now())
+  title     String?
+  company   String?
+  location  String?
+  start     DateTime?
+  end       DateTime?
+  userId    Int?
+  user      LinkedInUser? @relation(fields: [userId], references: [id])
+}
+
+model Honor {
+  id          Int           @id @default(autoincrement())
+  createdAt   DateTime      @default(now())
+  title       String?
+  issuer      String?
+  issueDate   DateTime?
+  userId      Int?
+  description String?
+  user        LinkedInUser? @relation(fields: [userId], references: [id])
+}
+
+model Language {
+  id          Int           @id @default(autoincrement())
+  createdAt   DateTime      @default(now())
+  language    String?
+  proficiency String?
+  userId      Int?
+  user        LinkedInUser? @relation(fields: [userId], references: [id])
+}
+
+model License {
+  id                  Int           @id @default(autoincrement())
+  createdAt           DateTime      @default(now())
+  name                String?
+  issuingOrganization String?
+  issueDate           DateTime?
+  expirationDate      DateTime?
+  credentialId        String?
+  credentialUrl       String?
+  userId              Int?
+  user                LinkedInUser? @relation(fields: [userId], references: [id])
+}
+
+model Skill {
+  id        Int           @id @default(autoincrement())
+  createdAt DateTime      @default(now())
+  skill     String?
+  userId    Int?
+  user      LinkedInUser? @relation(fields: [userId], references: [id])
+}
+
+model Volunteering {
+  id           Int           @id @default(autoincrement())
+  createdAt    DateTime      @default(now())
+  role         String?
+  organization String?
+  cause        String?
+  start        DateTime?
+  end          DateTime?
+  userId       Int?
+  user         LinkedInUser? @relation(fields: [userId], references: [id])
+}
+
+model SentimentClassification {
+  id           Int                    @id @default(autoincrement())
+  createdAt    DateTime               @default(now())
+  text         String?
+  sentiment    String?
+  score        Float?
+  postId       Int?
+  commentId    Int?
+  byModel      String?
+  isRedFlag    Boolean?               @default(false)
+  inputVector  Unsupported("vector")?
+  outputVector Unsupported("vector")?
+  comment      Comment?               @relation(fields: [commentId], references: [id])
+  post         Post?                  @relation(fields: [postId], references: [id])
+}
+
+model EntityClassification {
+  id             Int                    @id @default(autoincrement())
+  createdAt      DateTime               @default(now())
+  text           String?
+  type           String?
+  postId         Int?
+  commentId      Int?
+  byModel        String?
+  isPersonalInfo Boolean?               @default(false)
+  isRedFlag      Boolean?               @default(false)
+  inputVector    Unsupported("vector")?
+  outputVector   Unsupported("vector")?
+  comment        Comment?               @relation(fields: [commentId], references: [id])
+  post           Post?                  @relation(fields: [postId], references: [id])
+}
+
+model StyleClassification {
+  id           Int                    @id @default(autoincrement())
+  createdAt    DateTime               @default(now())
+  text         String?
+  style        String?
+  postId       Int?
+  commentId    Int?
+  byModel      String?
+  inputVector  Unsupported("vector")?
+  outputVector Unsupported("vector")?
+  comment      Comment?               @relation(fields: [commentId], references: [id])
+  post         Post?                  @relation(fields: [postId], references: [id])
+}
+
+model Team {
+  id        Int            @id @default(autoincrement())
+  createdAt DateTime       @default(now())
+  name      String?
+  User      LinkedInUser[]
+}
+
+model sourceNode {
+  id            Int      @id @default(autoincrement())
+  node_id       String
+  metadata      String?
+  insightId     Int?
+  action        String?
+  date          String?
+  linkToSource  String?
+  summaryOfNode String?
+  tags          String[]
+  Insight       Insight? @relation(fields: [insightId], references: [id])
+}
+
+model OceanClassification {
+  id                Int                    @id @default(autoincrement())
+  createdAt         DateTime               @default(now())
+  postId            Int?
+  commentId         Int?
+  openness          Float?
+  conscientiousness Float?
+  extraversion      Float?
+  agreeableness     Float?
+  neuroticism       Float?
+  inputVector       Unsupported("vector")?
+  outputVector      Unsupported("vector")?
+  byModel           String?
+  comment           Comment?               @relation(fields: [commentId], references: [id])
+  post              Post?                  @relation(fields: [postId], references: [id])
+}
+
+model OceanScore {
+  id                Int                    @id @default(autoincrement())
+  createdAt         DateTime               @default(now())
+  userId            Int?
+  openness          Float?
+  conscientiousness Float?
+  extraversion      Float?
+  agreeableness     Float?
+  neuroticism       Float?
+  inputVector       Unsupported("vector")?
+  outputVector      Unsupported("vector")?
+  Insight           Insight[]
+  user              LinkedInUser?          @relation(fields: [userId], references: [id])
+}
+
+model MiniModelSummarisation {
+  id             Int                    @id @default(autoincrement())
+  createdAt      DateTime               @default(now())
+  text           String?
+  model          String?
+  postId         Int?
+  commentId      Int?
+  userAbout      String?
+  userId         Int?
+  inputVector    Unsupported("vector")?
+  outputVector   Unsupported("vector")?
+  BigModelOutput BigModelOutput[]
+  comment        Comment?               @relation(fields: [commentId], references: [id])
+  post           Post?                  @relation(fields: [postId], references: [id])
+  user           LinkedInUser?          @relation(fields: [userId], references: [id])
+}
+
+model BigModelOutput {
+  id               Int                     @id @default(autoincrement())
+  createdAt        DateTime                @default(now())
+  text             String?
+  model            String?
+  postId           Int?
+  commentId        Int?
+  userAbout        String?
+  userId           Int?
+  miniModelInputId Int?
+  inputVector      Unsupported("vector")?
+  outputVector     Unsupported("vector")?
+  comment          Comment?                @relation(fields: [commentId], references: [id])
+  miniModelInput   MiniModelSummarisation? @relation(fields: [miniModelInputId], references: [id])
+  post             Post?                   @relation(fields: [postId], references: [id])
+  user             LinkedInUser?           @relation(fields: [userId], references: [id])
+}
+
+model Source {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  name      String    @unique
+  Comment   Comment[]
+  Post      Post[]
+}
+
+model PersonalInfo {
+  id        Int               @id @default(autoincrement())
+  createdAt DateTime          @default(now())
+  text      String?
+  typeId    Int?
+  postId    Int?
+  commentId Int?
+  comment   Comment?          @relation(fields: [commentId], references: [id])
+  post      Post?             @relation(fields: [postId], references: [id])
+  type      PersonalInfoType? @relation(fields: [typeId], references: [id])
+}
+
+model PersonalInfoType {
+  id           Int            @id @default(autoincrement())
+  createdAt    DateTime       @default(now())
+  type         String         @unique
+  PersonalInfo PersonalInfo[]
+}
+
+model CurrentScore {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  userId       Int?
+  insightId    Int?
+  history      Int[]
+  currentScore Int?
+  insight      Insight? @relation(fields: [insightId], references: [id])
+}
+
+model LinkedInUser {
+  id                     Int                      @id @default(autoincrement())
+  createdAt              DateTime                 @default(now())
+  name                   String?
+  about                  String?
+  causes                 String?
+  image                  String?
+  linkedInId             String?                  @unique
+  scraperVersion         Int?
+  shortId                String?                  @unique
+  referralCode           String?                  @unique
+  referredById           Int?
+  teamId                 Int?
+  kg                     String?
+  firebaseId             String?                  @unique
+  firstName              String?
+  gender                 Gender                   @default(HE)
+  lastName               String?
+  email                  String?
+  isSubscribed           Boolean?                 @default(false)
+  reportId               String?
+  Alert                  Alert[]
+  BigModelOutput         BigModelOutput[]
+  comments               Comment[]
+  DesiredPerception      DesiredPerception[]
+  education              Education[]
+  experience             Experience[]
+  honors                 Honor[]
+  Insight                Insight[]
+  KnowledgeGraph         KnowledgeGraph[]
+  languages              Language[]
+  licenses               License[]
+  Team                   Team?                    @relation(fields: [teamId], references: [id])
+  MiniModelSummarisation MiniModelSummarisation[]
+  NewPerception          NewPerception[]
+  OceanScore             OceanScore[]
+  posts                  Post[]
+  skills                 Skill[]
+  volunteerings          Volunteering[]
+}
+
+model Insight {
+  id                  Int                    @id @default(autoincrement())
+  createdAt           DateTime               @default(now())
+  postId              Int?
+  commentId           Int?
+  perceivedBy         String?
+  textVector          Unsupported("vector")?
+  userId              Int?
+  oceanScoreId        Int?
+  personType          String?
+  perception          String?
+  catchySubject       String?
+  why                 String?
+  topics              String[]
+  archived            Boolean?               @default(false)
+  read                Boolean?               @default(false)
+  starred             Boolean?               @default(false)
+  highlightText       String?
+  shortSummary        String?
+  title               String?
+  isLiked             Boolean?           
+  feedBack            String[]
+  desiredPerceptionId Int?
+  Alert               Alert[]
+  CurrentScore        CurrentScore[]
+  comment             Comment?               @relation(fields: [commentId], references: [id])
+  DesiredPerception   DesiredPerception?     @relation(fields: [desiredPerceptionId], references: [id])
+  oceanScore          OceanScore?            @relation(fields: [oceanScoreId], references: [id])
+  post                Post?                  @relation(fields: [postId], references: [id])
+  user                LinkedInUser?          @relation(fields: [userId], references: [id])
+  NewPerception       NewPerception[]
+  Task                Task[]
+  source_nodes        sourceNode[]
+}
+
+model Alert {
+  id           Int           @id @default(autoincrement())
+  createdAt    DateTime      @default(now())
+  insightId    Int
+  userId       Int?
+  deliveredAt  DateTime?
+  didSave      Boolean?      @default(false)
+  didShare     Boolean?      @default(false)
+  interactedAt DateTime[]
+  insight      Insight       @relation(fields: [insightId], references: [id])
+  user         LinkedInUser? @relation(fields: [userId], references: [id])
+}
+
+model Task {
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  taskType        String?
+  taskDescription String?
+  insightId       Int?
+  shortSummary    String?
+  title           String?
+  Insight         Insight? @relation(fields: [insightId], references: [id])
+}
+
+model KnowledgeGraph {
+  id           Int           @id @default(autoincrement())
+  createdAt    DateTime      @default(now())
+  userId       Int?
+  nodes        String?
+  edges        String?
+  LinkedInUser LinkedInUser? @relation(fields: [userId], references: [id])
+}
+
+model DesiredPerception {
+  id           Int           @id @default(autoincrement())
+  createdAt    DateTime      @default(now())
+  userId       Int?
+  perception   String?
+  text         String?
+  title        String?
+  action       Action        @default(MAINTAIN)
+  LinkedInUser LinkedInUser? @relation(fields: [userId], references: [id])
+  Insight      Insight[]
+}
+
+model NewPerception {
+  id                  Int              @id @default(autoincrement())
+  createdAt           DateTime         @default(now())
+  userId              Int?
+  text                String?
+  persona             String?
+  summaryOfPerception String?
+  isPositive          Boolean?
+  insightId           Int?
+  highlightTexts      HighlightClick[]
+  Insight             Insight?         @relation(fields: [insightId], references: [id])
+  LinkedInUser        LinkedInUser?    @relation(fields: [userId], references: [id])
+}
+
+model HighlightClick {
+  id              Int            @id @default(autoincrement())
+  createdAt       DateTime       @default(now())
+  highlightText   String?
+  insightId       Int?
+  newPerceptionId Int?
+  NewPerception   NewPerception? @relation(fields: [newPerceptionId], references: [id])
+}
+
+enum Gender {
+  HE
+  SHE
+  THEY
+}
+
+enum Action {
+  COUNTER
+  MAINTAIN
+  ENHANCE
+}
